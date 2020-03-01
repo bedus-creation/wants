@@ -31,6 +31,12 @@ class Want extends Model
         return $this->hasMany(Vote::class);
     }
 
+    public function getLastCommentAttribute()
+    {
+        return $this->comments->sortByDesc('created_at')->first();
+    }
+
+
     public function url()
     {
         return URL::route('want', [
@@ -47,10 +53,11 @@ class Want extends Model
 
     public function scopeWithLastCommentId($query)
     {
-        $query->addSelect(['last_comment_id' => Comment::select('id')
-            ->whereColumn('comments.want_id', 'wants.id')
-            ->latest()
-            ->take(1),
+        $query->addSelect([
+            'last_comment_id' => Comment::select('id')
+                ->whereColumn('comments.want_id', 'wants.id')
+                ->latest()
+                ->take(1),
         ]);
     }
 
@@ -83,6 +90,8 @@ class Want extends Model
             end
         ");
     }
+
+
 
     public function scopeOrderByActivity($query)
     {
